@@ -1,0 +1,26 @@
+---
+
+####### Firewalld setup ##########
+- name: Import firewall rules tasks
+  import_tasks: firewalld.yml
+  tags:
+    - install_firewall
+
+##### Pre satellite installation tasks #########
+- name: Satellite Pre-installation tasks file only first match
+  include_tasks: "{{ item }}"
+  loop: "{{ query( 'first_found', satellite_pre_installation_task_files | d('/no/file/provided') , errors='ignore') }}"
+  tags:
+    - install_satellite
+
+####### Include satellite tasks #############
+- name: Include satellite installation/setup tasks
+  include_tasks: version_6.x.yml
+  when: satellite_version is defined
+
+##### Post satellite configuration tasks #########
+- name: Satellite Post-configuration tasks file only first match
+  include_tasks: "{{ item }}"
+  loop: "{{ query( 'first_found', satellite_post_configuration_task_files | d('/no/file/provided') , errors='ignore') }}"
+  tags:
+    - configure_satellite
